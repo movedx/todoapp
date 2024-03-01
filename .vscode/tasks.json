@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build and run container",
+            "type": "shell",
+            "command": "sudo docker build --tag todoapp . && sudo docker run -p 5555:5555 todoapp"
+        }
+    ]
+}
