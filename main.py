@@ -3,10 +3,12 @@ from flask import Flask, jsonify, Response
 import config
 import json
 import time
+from blueprints.activities import activities
 
 
 def create_app():
     app = Flask(__name__)
+    app.register_blueprint(activities)
 
     @app.errorhandler(404)
     def resource_not_found(e):
@@ -52,6 +54,5 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    #    app = create_app()
     print(" Starting app...")
     app.run(debug=True, host="0.0.0.0", port=5555)
