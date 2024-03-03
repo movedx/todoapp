@@ -1,9 +1,10 @@
 import os
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, g, request
 import config
 import json
 import time
 from blueprints.activities import activities
+import uuid
 
 
 def create_app():
@@ -36,6 +37,14 @@ def create_app():
             "payload": "pong"
         }
         return jsonify(response_body)
+
+    @app.before_request
+    def before_request_func():
+        execution_id = uuid.uuid4()
+        g.start_time = time.time()
+        g.execution_id = execution_id
+
+        print(g.execution_id, "ROUTE CALLED", request.url)
 
     @app.after_request
     def after_request(response):
