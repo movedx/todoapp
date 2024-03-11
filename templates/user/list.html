@@ -26,15 +26,15 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                    <a href="{{ url_for('activities.user_detail', id=user.id) }}">View</a>
-                    <a href="{{ url_for('activities.user_delete', id=user.id) }}">Delete</a>
+                    <a href="{{ url_for('routes_non_auth.user_detail', id=user.id) }}">View</a>
+                    <a href="{{ url_for('routes_non_auth.user_delete', id=user.id) }}">Delete</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     <br>
-    <a href="{{ url_for('activities.user_create') }}">Create New User</a>
+    <a href="{{ url_for('routes_non_auth.user_create') }}">Create New User</a>
 </body>
 
 </html>
