@@ -11,11 +11,11 @@
 <body>
     <h1>Delete User</h1>
     <p>Are you sure you want to delete user "{{ user.username }}"?</p>
-    <form method="post" action="{{ url_for('user_delete', id=user.id) }}">
+    <form method="post" action="{{ url_for('activities.user_delete', id=user.id) }}">
         <input type="submit" value="Delete">
     </form>
     <br>
-    <a href="{{ url_for('user_list') }}">Cancel</a>
+    <a href="{{ url_for('activities.user_list') }}">Cancel</a>
 </body>
 
 </html>

@@ -4,7 +4,7 @@
         {
             "label": "build and run container",
             "type": "shell",
-            "command": "sudo docker build --tag todoapp . && sudo docker run -p 5555:5555 todoapp"
+            "command": "sudo docker build --tag todoapp . && sudo docker run -v /home/movedx/dev/python/todoapp:/app  -p 5555:5555 todoapp"
         }
     ]
 }
