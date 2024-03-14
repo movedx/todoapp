@@ -69,3 +69,45 @@ def create_toodo():
         db.session.add(new_todo)
         db.session.commit()
         return redirect(url_for('routes_auth.profile'))
+
+
+
+@routes_auth.route('/delete_todo', methods=['POST'])
+@login_required
+def delete_todo():
+        if request.method == 'POST':
+            todo_id = request.form.get('todo_id')
+            
+            todo_to_delete = Todo.query.get(todo_id)
+            
+            if todo_to_delete and todo_to_delete.user_id == current_user.id:
+                db.session.delete(todo_to_delete)
+                db.session.commit()
+                flash('Todo deleted successfully', 'success')
+            else:
+                flash('Todo not found or you do not have permission to delete it', 'error')
+    
+            return redirect(url_for('routes_auth.profile'))
+        
+@routes_auth.route('/complete_todo', methods=['POST'])
+@login_required
+def complete_todo():
+    if request.method == 'POST':
+        todo_id = request.form.get('todo_id')
+
+        todo_to_complete = Todo.query.get(todo_id)
+        if todo_to_complete.is_completed == True:
+            todo_to_complete.is_completed = False
+            db.session.commit()
+            flash('Todo marked as completed', 'success')
+
+            return redirect(url_for('routes_auth.profile'))
+        if todo_to_complete and todo_to_complete.user_id == current_user.id:
+            todo_to_complete.is_completed = True
+            db.session.commit()
+            flash('Todo marked as completed', 'success')
+        else:
+            flash('Todo not found or you do not have permission to mark it as completed', 'error')
+    
+    return redirect(url_for('routes_auth.profile'))
+    
