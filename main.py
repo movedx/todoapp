@@ -1,9 +1,10 @@
-from distutils import config
+import config
 import json
 import time
 import uuid
 from flask import Flask, Response, g, jsonify, request
 from flask_login import current_user
+
 
 app = Flask(__name__)
 

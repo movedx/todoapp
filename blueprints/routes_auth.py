@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, render_template, request, url_for, flash
-from database import db, User
+from database import db, User, Todo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -47,7 +47,9 @@ def signup():
 @routes_auth.route('/profile')
 @login_required
 def profile():
-    return render_template('user/profile.html', username=current_user.username)
+    user = User.query.get(current_user.id)
+    todos = user.todos.all()
+    return render_template('user/profile.html', username=current_user.username, todos=todos)
 
 
 @routes_auth.route('/logout')
@@ -55,3 +57,15 @@ def profile():
 def logout():
     logout_user()
     return redirect(url_for('routes_non_auth.index'))
+
+
+@routes_auth.route('/create_todo', methods=['POST'])
+@login_required
+def create_toodo():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        new_todo = Todo(title=title, description=description, user_id=current_user.id)
+        db.session.add(new_todo)
+        db.session.commit()
+        return redirect(url_for('routes_auth.profile'))
