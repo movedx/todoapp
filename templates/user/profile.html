@@ -1,8 +1,19 @@
-{% macro todo_title(title) %}
-<div class="box">
-    {{ title }}
+{% macro todo_title(todo) %}
+<div class="box" style="cursor: pointer;" onclick="toggleDescription({{ todo.id }})">
+    {% if todo.is_completed %}
+    <del> {{ todo.title }} </del>
+    {% else %}
+    {{ todo.title }}
+    {% endif %}
 </div>
 {% endmacro %}
+
+{% macro todo_description(todo) %}
+<div class="todo-description" id="todo-description-{{ todo.id }}" style="display: none;">
+    {{ todo.description }}
+</div>
+{% endmacro %}
+
 
 
 {% macro button(todo_id, action, icon) %}
@@ -62,7 +73,8 @@
             </div>
             <div class="column is-9">
                 <div>
-                    {{ todo_title( todo.title ) }}
+                    {{ todo_title( todo ) }}
+                    {{ todo_description( todo ) }}
                 </div>
             </div>
             <div class="column">
@@ -81,7 +93,8 @@
             </div>
             <div class="column is-9">
                 <div>
-                    <del style="color:black">{{ todo_title( todo.title ) }}</del>
+                    {{ todo_title( todo ) }}
+                    {{ todo_description( todo ) }}
                 </div>
             </div>
             <div class="column">

@@ -52,6 +52,18 @@
             </div>
         </div>
     </section>
+    {% block scripts %}
+    <script>
+        function toggleDescription(todoId) {
+            var description = document.getElementById('todo-description-' + todoId);
+            if (description.style.display === 'none') {
+                description.style.display = 'block';
+            } else {
+                description.style.display = 'none';
+            }
+        }
+    </script>
+    {% endblock %}
 </body>
 
 </html>
