@@ -9,7 +9,7 @@ import secrets
 routes_auth = Blueprint(name='routes_auth', import_name=__name__)
 
 
-@routes_auth.route('/login_google')
+@routes_auth.route('/login_google', methods=['GET', 'POST'])
 def login_google():
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
@@ -19,8 +19,9 @@ def login_google():
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri="https://localhost:5555/login/callback",
+        redirect_uri="https://localhost/login/callback",
         scope=["email"],
+        prompt="consent",
     )
     return redirect(request_uri)
 
@@ -72,7 +73,7 @@ def authorized():
 
     login_user(user)
 
-    return redirect(url_for('profile'))
+    return redirect(url_for('routes_auth.profile'))
 
 
 @routes_auth.route('/login', methods=['GET', 'POST'])

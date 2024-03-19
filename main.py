@@ -59,4 +59,5 @@ def after_request(response):
 
 if __name__ == '__main__':
     print(' Starting app...')
+    # app.run(host='0.0.0.0', port=5555)
     app.run(host='0.0.0.0', port=443, ssl_context=ctx)
