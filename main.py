@@ -3,15 +3,36 @@ import json
 import time
 import uuid
 from flask import Flask, Response, g, jsonify, request
-# from flask_talisman import Talisman
+from flask_talisman import Talisman
 
 import ssl
-ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+ctx = ssl.create_default_context()
 ctx.load_cert_chain('cert.pem', 'key.pem')
 
 app = Flask(__name__)
 
-# Talisman(app)
+csp = {
+    'default-src': [
+        '\'self\'',
+    ],
+    'script-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',  # Allows the use of inline scripts
+        # '\'unsafe-eval\'',    # Allows the use of eval()
+        # 'https://js.example.com',  # Allow JS from this source
+    ],
+    'style-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',  # Allows the use of inline styles
+        'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css',  # Allow CSS from this source
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+
+    ],
+}
+
+Talisman(app, content_security_policy=csp)
+
+Talisman(app)
 
 from blueprints.routes_non_auth import routes_non_auth
 app.register_blueprint(routes_non_auth)
