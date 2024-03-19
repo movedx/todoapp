@@ -63,7 +63,7 @@ class Todo(db.Model):
 
 
 login_manager = LoginManager()
-login_manager.login_view = 'routes_auth.login'
+login_manager.login_view = 'routes.login'
 login_manager.init_app(app)
 
 

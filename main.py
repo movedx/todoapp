@@ -34,11 +34,8 @@ Talisman(app, content_security_policy=csp)
 
 Talisman(app)
 
-from blueprints.routes_non_auth import routes_non_auth
-app.register_blueprint(routes_non_auth)
-
-from blueprints.routes_auth import routes_auth
-app.register_blueprint(routes_auth)
+from blueprints.routes import routes
+app.register_blueprint(routes)
 
 
 @app.before_request
