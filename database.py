@@ -4,6 +4,9 @@ import os
 from flask_login import UserMixin, LoginManager
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
+from oauthlib.oauth2 import WebApplicationClient
+import requests
+
 
 load_dotenv()
 
@@ -23,6 +26,23 @@ app.config['LOGIN_DISABLED'] = False
 app.secret_key = os.getenv('APP_SECRET_KEY')
 
 db = SQLAlchemy(app)
+
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+GOOGLE_DISCOVERY_URL = (
+    "https://accounts.google.com/.well-known/openid-configuration"
+)
+
+
+def get_google_provider_cfg():
+    try:
+        response = requests.get(GOOGLE_DISCOVERY_URL)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as e:
+        print(e)
+        return None
 
 
 class User(UserMixin, db.Model):
@@ -45,6 +65,9 @@ class Todo(db.Model):
 login_manager = LoginManager()
 login_manager.login_view = 'routes_auth.login'
 login_manager.init_app(app)
+
+
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 
 @login_manager.user_loader

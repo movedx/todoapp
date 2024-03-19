@@ -1,9 +1,78 @@
-from flask import Blueprint, redirect, render_template, request, url_for, flash
-from database import db, User, Todo
+from flask import Blueprint, json, redirect, render_template, request, url_for, flash
+import requests
+from database import db, User, Todo, get_google_provider_cfg, client, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import current_user, login_required, login_user, logout_user
+import secrets
+
 
 routes_auth = Blueprint(name='routes_auth', import_name=__name__)
+
+
+@routes_auth.route('/login_google')
+def login_google():
+    # Find out what URL to hit for Google login
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    # Use library to construct the request for Google login and provide
+    # scopes that let you retrieve user's profile from Google
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri="https://localhost:5555/login/callback",
+        scope=["email"],
+    )
+    return redirect(request_uri)
+
+
+@routes_auth.route('/login/callback')
+def authorized():
+
+    code = request.args.get("code")
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    # Parse the tokens!
+    client.parse_request_body_response(json.dumps(token_response.json()))
+
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+
+    if userinfo_response.json().get("email_verified"):
+        # unique_id = userinfo_response.json()["sub"]
+        users_email: str = userinfo_response.json()["email"]
+        # picture = userinfo_response.json()["picture"]
+        # users_name = userinfo_response.json()["given_name"]
+    else:
+        return "User email not available or not verified by Google.", 400
+
+    user = User.query.filter_by(email=users_email).first()
+    if not user:
+        # Create a new user with information from Google
+        # The resulting password will have password length of password_length * 1.3.
+        # The text is Base64 encoded, so on average each byte results in approximately 1.3 characters.
+        password_length = 14
+        user = User(email=users_email, username=users_email.split("@")[0],
+                    password=generate_password_hash(secrets.token_urlsafe(password_length), method='scrypt'))
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+
+    return redirect(url_for('profile'))
 
 
 @routes_auth.route('/login', methods=['GET', 'POST'])
@@ -71,24 +140,24 @@ def create_toodo():
         return redirect(url_for('routes_auth.profile'))
 
 
-
 @routes_auth.route('/delete_todo', methods=['POST'])
 @login_required
 def delete_todo():
-        if request.method == 'POST':
-            todo_id = request.form.get('todo_id')
-            
-            todo_to_delete = Todo.query.get(todo_id)
-            
-            if todo_to_delete and todo_to_delete.user_id == current_user.id:
-                db.session.delete(todo_to_delete)
-                db.session.commit()
-                flash('Todo deleted successfully', 'success')
-            else:
-                flash('Todo not found or you do not have permission to delete it', 'error')
-    
-            return redirect(url_for('routes_auth.profile'))
-        
+    if request.method == 'POST':
+        todo_id = request.form.get('todo_id')
+
+        todo_to_delete = Todo.query.get(todo_id)
+
+        if todo_to_delete and todo_to_delete.user_id == current_user.id:
+            db.session.delete(todo_to_delete)
+            db.session.commit()
+            flash('Todo deleted successfully', 'success')
+        else:
+            flash('Todo not found or you do not have permission to delete it', 'error')
+
+        return redirect(url_for('routes_auth.profile'))
+
+
 @routes_auth.route('/complete_todo', methods=['POST'])
 @login_required
 def complete_todo():
@@ -108,6 +177,5 @@ def complete_todo():
             flash('Todo marked as completed', 'success')
         else:
             flash('Todo not found or you do not have permission to mark it as completed', 'error')
-    
+
     return redirect(url_for('routes_auth.profile'))
-    

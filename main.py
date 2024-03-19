@@ -3,10 +3,15 @@ import json
 import time
 import uuid
 from flask import Flask, Response, g, jsonify, request
-from flask_login import current_user
+# from flask_talisman import Talisman
 
+import ssl
+ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+ctx.load_cert_chain('cert.pem', 'key.pem')
 
 app = Flask(__name__)
+
+# Talisman(app)
 
 from blueprints.routes_non_auth import routes_non_auth
 app.register_blueprint(routes_non_auth)
@@ -54,4 +59,4 @@ def after_request(response):
 
 if __name__ == '__main__':
     print(' Starting app...')
-    app.run(host='0.0.0.0', port=5555)
+    app.run(host='0.0.0.0', port=443, ssl_context=ctx)

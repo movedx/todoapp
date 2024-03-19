@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
+Hello, {{ current_user.email }}
+{% endif %}
 <h1 class="title">
     Todo app
 </h1>
