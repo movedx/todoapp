@@ -34,11 +34,8 @@ Talisman(app, content_security_policy=csp)
 
 Talisman(app)
 
-from blueprints.routes_non_auth import routes_non_auth
-app.register_blueprint(routes_non_auth)
-
-from blueprints.routes_auth import routes_auth
-app.register_blueprint(routes_auth)
+from blueprints.routes import routes
+app.register_blueprint(routes)
 
 
 @app.before_request
@@ -80,5 +77,4 @@ def after_request(response):
 
 if __name__ == '__main__':
     print(' Starting app...')
-    # app.run(host='0.0.0.0', port=5555)
     app.run(host='0.0.0.0', port=443, ssl_context=ctx)
