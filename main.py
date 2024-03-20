@@ -1,5 +1,4 @@
 import config
-import json
 import time
 import uuid
 from flask import Flask, Response, g, jsonify, request
